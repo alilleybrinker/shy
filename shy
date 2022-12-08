@@ -1,76 +1,92 @@
 #!/usr/bin/env sh
 # SPDX-License-Identifier: MIT
 
+# The current version of the script, intended to follow SemVer.
+SHY_VERSION="0.1.0"
+
+# Process the configured source directory.
 process () {
-	echo "Process"
+	src="$1"
+	dest="$2"
+	template="$3"
+	is_verbose="$4"
+
+	if [ "$is_verbose" -eq 1 ]; then
+		print_config "$src" "$dest" "$template"
+	fi
+
+	find "${src}"/* -exec echo "Hello, '{}'" \;
+
 	#while IFS= read -r -d '' -u 9
 	#do
 	#	echo "${REPLY}"
 	#done 9< < $( find . -type f -print0 )
 }
 
-print_version () {
-	printf "version 0.1.0"
+# Print the configuration shy is running with.
+print_config () {
+	printf "\n"
+	printf "CONFIGURATION:\n"
+	printf "    source dir:      %s\n" "$1"
+	printf "    destination dir: %s\n" "$2"
+	printf "    template file:   %s\n" "$3"
+	printf "\n"
 }
 
+# Print the current version of shy.
+print_version () {
+	printf "version %s\n" $SHY_VERSION
+}
+
+# Print the shy help text.
 print_help () {
 	cat << HELP
 USAGE:
   shy [ OPTIONS ] [ FLAGS ]
 
 OPTIONS:
-  -s   the source folder to scan
-  -d   where to write the outputs
-  -t   the template to fill with any processed Markdown
+  -s <SOURCE DIR>        the source folder to scan [default ./src/]
+  -d <DESTINATION DIR>   where to write the outputs [default: ./dest/]
+  -t <TEMPLATE FILE>     the HTML template to put Markdown into [default: template.html]
+  -v                     run with verbose output
 
 FLAGS:
-  -v   print the version number
-  -h   print the help text
+  -V   print the version number and exit
+  -h   print the help text and exit
 
 EXAMPLE:
   shy -s src/ -d dest/ -t template.html
+
+MORE INFO:
+  By default, shy outputs nothing to the user unless an error arises.
+  shy relies on cmark being installed on the target system; if cmark is not
+  installed, shy will exit with an error.
+
+CREDITS:
+  Written by Andrew Lilley Brinker <alilleybrinker@gmail.com>.
 HELP
 }
 
 
-flag_s=
-s_val=
-flag_d=
-d_val=
-flag_t=
-t_val=
-while getopts "s:d:t:vh" flag
+src_val="./src"
+dest_val="./dest"
+template_val="./template.html"
+verbose_flag=
+while getopts "s:d:t:vhV" flag
 do
 	case "${flag}" in
-		v)      print_version
+		V)	print_version
 			exit 1;;
-		h)      print_help
+		h)	print_help
 			exit 1;;
-		s)      flag_s=1
-			s_val="${OPTARG}";;
-		d)      flag_d=1
-			d_val="${OPTARG}";;
-		t)      flag_t=1
-			t_val="${OPTARG}";;
-		?)      printf "usage: %s: [-v] [-h] -s <SRC> -d <DST> -t <TEMPLATE>\n" "$0"
+		s)	src_val="${OPTARG}";;
+		d)	dest_val="${OPTARG}";;
+		t)	template_val="${OPTARG}";;
+		v)	verbose_flag=1;;
+		?)	printf "usage: %s: [-v] [-h] -s <SRC> -d <DST> -t <TEMPLATE>\n" "$0"
 			exit 1;;
 	esac
 done
 
-if [ -z $flag_s ]; then
-	printf "missing -s, need to specify source directory\n"
-	exit 1
-fi
-
-if [ -z $flag_d ]; then
-	printf "missing -d, need to specify destination directory\n"
-	exit 1
-fi
-
-if [ -z $flag_t ]; then
-	printf "missing -t, need to specify template file\n"
-	exit 1
-fi
-
-process "${s_val}", "${d_val}", "${t_val}"
+process "${src_val}" "${dest_val}" "${template_val}" "$verbose_flag"
 

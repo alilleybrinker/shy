@@ -99,26 +99,31 @@ CREDITS:
 HELP
 }
 
+# Parse arguments and run the main logic of the program.
+main () {
+	src_val="./src"
+	dest_val="./dest"
+	template_val="./template.html"
+	verbose_flag=
+	while getopts "s:d:t:vhV" flag
+	do
+		case "${flag}" in
+			V)	print_version
+				exit 1;;
+			h)	print_help
+				exit 1;;
+			s)	src_val="${OPTARG}";;
+			d)	dest_val="${OPTARG}";;
+			t)	template_val="${OPTARG}";;
+			v)	verbose_flag=1;;
+			?)	printf "usage: %s: [-V] [-h] [v] [-s <SRC>] [-d <DEST>] [-t <TEMPLATE>]\n" "$0"
+				exit 1;;
+		esac
+	done
 
-src_val="./src"
-dest_val="./dest"
-template_val="./template.html"
-verbose_flag=
-while getopts "s:d:t:vhV" flag
-do
-	case "${flag}" in
-		V)	print_version
-			exit 1;;
-		h)	print_help
-			exit 1;;
-		s)	src_val="${OPTARG}";;
-		d)	dest_val="${OPTARG}";;
-		t)	template_val="${OPTARG}";;
-		v)	verbose_flag=1;;
-		?)	printf "usage: %s: [-V] [-h] [v] [-s <SRC>] [-d <DEST>] [-t <TEMPLATE>]\n" "$0"
-			exit 1;;
-	esac
-done
+	process "${src_val}" "${dest_val}" "${template_val}" "$verbose_flag"
+}
 
-process "${src_val}" "${dest_val}" "${template_val}" "$verbose_flag"
+main "$@"
+
 

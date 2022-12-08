@@ -54,10 +54,10 @@ CREDITS:
 
 ## Template File
 
-`shy` comes with an example `template.html` file. The file can contain whatever you
-want, so long as it has a `{{ content }}` string, which will be replaced with the
-output of running `cmark` against any Markdown files found during processing of the
-source directory.
+`shy` comes with an example `template.html` file. The file can contain anything, so
+long as it has a `{{ content }}` string, which will be replaced with the output of
+running `cmark` against any Markdown files found during processing of the source
+directory.
 
 ## License
 

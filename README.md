@@ -18,6 +18,10 @@ and put into a template, and then placed in the destination directory as an
 
 Everything else is not-Markdown and will be copied without processing.
 
+If no Markdown files are found within the source directory, then the template
+parameter is optional. In that situation you should probably just use `cp -R`
+to recursively copy the directory.
+
 ## Usage
 
 The `shy` help text reads as follows:

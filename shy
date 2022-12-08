@@ -33,12 +33,29 @@ process () {
 		mkdir -p "$dest"
 	fi	
 
-	find "${src}"/* -exec echo "Hello, '{}'" \;
+	find "${src}"/* | process_entry "$is_verbose"
+}
 
-	#while IFS= read -r -d '' -u 9
-	#do
-	#	echo "${REPLY}"
-	#done 9< < $( find . -type f -print0 )
+process_entry () {
+	is_verbose="$1"
+
+	while read -r name; do
+		if [ "$is_verbose" -eq 1 ]; then
+			printf "info:  found '%s'\n" "$name"
+		fi
+	done
+
+	# Template file checking is lazy; if there are no Markdown files, then
+	# the template file doesn't need to exist.
+
+	# From here on, iterate through every file and directory in the source directory recursively.
+	# If it's a file, check the filetype.
+	# If it's not a Markdown file (ending in .md, .markdown, .mdown, .mdwn, .mkd, .mkdn, .mkdown),
+	# then just copy it to the destination directory.
+	# If it's a Markdown file, then run it through 'cmark', stick the output into the template, and
+	# place the resulting file in the destination with the .html extension.
+	# If it's a directory, create a new directory with the same name in the destination directory.
+
 }
 
 # Print the configuration shy is running with.

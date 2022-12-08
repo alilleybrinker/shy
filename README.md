@@ -2,7 +2,7 @@
 
 
 `shy` reads files and directories from a source directory and copies them to
-a destination directory; if a file is Markdown, it gets processing by `cmark`
+a destination directory; if a file is Markdown, it gets processed by `cmark`
 and put into a template, and then placed in the destination directory as an
 `.html` file.
 

@@ -11,9 +11,27 @@ process () {
 	template="$3"
 	is_verbose="$4"
 
+	# If verbose, print configuration.
 	if [ "$is_verbose" -eq 1 ]; then
 		print_config "$src" "$dest" "$template"
 	fi
+
+	# If the source directory doesn't exist, exit with an error.
+	if [ ! -d "$src" ]; then
+		printf "error: '%s' directory does not exist.\n" "$src"
+		exit 1
+	fi
+
+	# If the destination directory doesn't exist, create it, with a log entry
+	# in verbose mode.
+	if [ ! -d "$dest" ]; then
+		if [ "$is_verbose" -eq 1 ]; then
+			printf "info:  '%s' directory does not exist. Creating it...\n" \
+				"$dest"
+		fi
+
+		mkdir -p "$dest"
+	fi	
 
 	find "${src}"/* -exec echo "Hello, '{}'" \;
 
@@ -25,12 +43,9 @@ process () {
 
 # Print the configuration shy is running with.
 print_config () {
-	printf "\n"
-	printf "CONFIGURATION:\n"
-	printf "    source dir:      %s\n" "$1"
-	printf "    destination dir: %s\n" "$2"
-	printf "    template file:   %s\n" "$3"
-	printf "\n"
+	printf "info:  source directory = '%s'\n" "$1"
+	printf "info:  destination directory = '%s'\n" "$2"
+	printf "info:  template file = '%s'\n" "$3"
 }
 
 # Print the current version of shy.
@@ -45,8 +60,8 @@ USAGE:
   shy [ OPTIONS ] [ FLAGS ]
 
 OPTIONS:
-  -s <SOURCE DIR>        the source folder to scan [default ./src/]
-  -d <DESTINATION DIR>   where to write the outputs [default: ./dest/]
+  -s <SOURCE DIR>        the source folder to scan [default ./src]
+  -d <DESTINATION DIR>   where to write the outputs [default: ./dest]
   -t <TEMPLATE FILE>     the HTML template to put Markdown into [default: template.html]
   -v                     run with verbose output
 
@@ -55,7 +70,7 @@ FLAGS:
   -h   print the help text and exit
 
 EXAMPLE:
-  shy -s src/ -d dest/ -t template.html
+  shy -s src -d dest -t template.html
 
 MORE INFO:
   By default, shy outputs nothing to the user unless an error arises.
@@ -83,7 +98,7 @@ do
 		d)	dest_val="${OPTARG}";;
 		t)	template_val="${OPTARG}";;
 		v)	verbose_flag=1;;
-		?)	printf "usage: %s: [-v] [-h] -s <SRC> -d <DST> -t <TEMPLATE>\n" "$0"
+		?)	printf "usage: %s: [-V] [-h] [v] [-s <SRC>] [-d <DEST>] [-t <TEMPLATE>]\n" "$0"
 			exit 1;;
 	esac
 done

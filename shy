@@ -11,6 +11,12 @@ process () {
 	template="$3"
 	is_verbose="$4"
 
+	# If 'cmark' is not installed, exit with an error.
+	if ! command -v cmark > /dev/null; then
+		printf "error: 'cmark' could not be found; please install 'cmark'\n"
+		exit 1
+	fi
+
 	# If verbose, print configuration.
 	if [ "$is_verbose" -eq 1 ]; then
 		print_config "$src" "$dest" "$template"

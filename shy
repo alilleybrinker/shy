@@ -28,40 +28,64 @@ process () {
 		exit 1
 	fi
 
+	# Make sure we don't destroy a valid directory.
+	if [ -d "$dest" ] && [ ! -f "$dest/.shy" ]; then
+		printf "error: %s is not a shy output directory; choose another directory or delete its contents\n" "$dest"
+		exit 1
+	fi
+
 	# If the destination directory doesn't exist, create it, with a log entry
 	# in verbose mode.
-	if [ ! -d "$dest" ]; then
+	if [ -d "$dest" ]; then
 		if [ "$is_verbose" -eq 1 ]; then
-			printf "info:  '%s' directory does not exist. Creating it...\n" \
-				"$dest"
+			printf "info:  '%s' directory exists\n" "$dest"
 		fi
 
-		mkdir -p "$dest"
-	fi	
-
-	find "${src}"/* | process_entry "$is_verbose"
+		rm -r "$dest"
+	else
+		if [ "$is_verbose" -eq 1 ]; then
+			printf "info:  '%s' directory does not exist\n" "$dest"
+		fi
+	fi
+	
+	mkdir -p "$dest"
+	touch "$dest/.shy"
+	find "${src}"/* | process_entry "$dest" "$template" "$is_verbose"
 }
 
 process_entry () {
-	is_verbose="$1"
+	dest="$1"
+	template="$2"
+	is_verbose="$3"
 
 	while read -r name; do
 		if [ "$is_verbose" -eq 1 ]; then
 			printf "info:  found '%s'\n" "$name"
 		fi
+
+		raw_name="${name#\./*/}"
+
+		if [ -d "$name" ]; then
+			mkdir -p "${dest}/${raw_name}"
+		fi	
+
+		if [ -f "$name" ]; then
+			file_name=$(basename -- "$name")
+			file_ext="${file_name##*.}"
+
+			case "$file_ext" in
+				"md" | "markdown" | "mdown" | "mdwn" | "mkd" | "mkdn" | "mkdown" )
+					html=$(cmark "$name")
+					dest_file="$dest/${raw_name%.*}.html"
+					cp "$template" "$dest_file"
+					echo "$html" > "$dest_file.temp"
+					sed -i "/<!-- content -->/r $dest_file.temp" "$dest_file"
+					rm "$dest_file.temp"
+					;;
+				* ) cp "$name" "$dest/$raw_name" ;;
+			esac
+		fi
 	done
-
-	# Template file checking is lazy; if there are no Markdown files, then
-	# the template file doesn't need to exist.
-
-	# From here on, iterate through every file and directory in the source directory recursively.
-	# If it's a file, check the filetype.
-	# If it's not a Markdown file (ending in .md, .markdown, .mdown, .mdwn, .mkd, .mkdn, .mkdown),
-	# then just copy it to the destination directory.
-	# If it's a Markdown file, then run it through 'cmark', stick the output into the template, and
-	# place the resulting file in the destination with the .html extension.
-	# If it's a directory, create a new directory with the same name in the destination directory.
-
 }
 
 # Print the configuration shy is running with.

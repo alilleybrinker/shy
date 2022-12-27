@@ -57,7 +57,7 @@ CREDITS:
 `shy` comes with an example `template.html` file, which can be modified or replaced
 with your own `template.html` file.
 
-A template file can contain anything, so long as it has a `{{ content }}` string,
+A template file can contain anything, so long as it has a `<!-- content -->` string,
 which will be replaced with the output of running `cmark` against any Markdown
 files found during processing of the source directory.
 

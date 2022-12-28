@@ -134,7 +134,7 @@ main () {
 	src_val="./src"
 	dest_val="./dest"
 	template_val="./template.html"
-	verbose_flag=
+	verbose_flag=0
 	while getopts "s:d:t:vhV" flag
 	do
 		case "${flag}" in
